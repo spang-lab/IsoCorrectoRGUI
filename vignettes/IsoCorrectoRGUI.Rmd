@@ -1,0 +1,46 @@
+---
+title: "IsoCorrectoRGUI - a graphical user interface for IsoCorrectoR"
+author:
+- name: Paul Heinrich
+  affiliation:
+    - Statistical Bioinformatics Department, Institute of Functional Genomics, University of Regensburg
+package: IsoCorrectoRGUI
+output: 
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{IsoCorrectoRGUI}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Requirements
+
+The __graphical user interface (GUI) package of IsoCorrectoR, IsoCorrectoRGUI, requires the R package 'tcltk'. This package is installed with all standard installations of R__. On __Linux and Mac OS systems (but not on Windows), the X11 window manager is additionally required for running the GUI__. To check if tcltk and (in the case of Linux and Mac OS systems) X11 is available on your system, start an R session and type __capabilities()__ in your R console. If the value below tcltk and X11 in the output is TRUE, they are available to your R installation. Otherwise, please refer to the distributors of Tcl/tk and/or X11 for installing the software on your operating system if you wish to use the GUI.
+
+#Installation
+
+__THIS TEXT HAS TO BE UPDATED__
+
+To install IsoCorrectoRGUI, start an R session, e.g. by starting RStudio. Then type __BioCLite(“IsoCorrectoRGUI”)__ into your R console __to install the package IsoCorrectoRGUI__. To load the package, type library(IsoCorrectoRGUI). If you install IsoCorrectoRGUI, the base version of IsoCorrectoR with the console interface will be installed, too, so you can use it as well.
+
+#Usage
+
+##Starting IsoCorrectoR with the graphical user interface (GUI)
+
+To use IsoCorrectoR via the graphical user interface, __type IsoCorrectionGUI() into the R console__ after you have loaded the IsoCorrectoRGUI package by typing __library(IsoCorrectoRGUI)__.
+
+##Input files
+
+Input files must be either in 'csv' or 'xls'/'xlsx' format. You can find examples for input files in the folder __extdata__ in the directory where you installed the IsoCorrectoRGUI package (you can view the default paths for installing packages in R by typing .libPaths() in the R console). The __exdata__ folder contains input files and results for both normal and high resolution data.
+
+##Additional information
+
+THIS TEXT HAS TO BE UPDATED (Link to documentation on the web)
+
+For more information on how to use IsoCorrectoR/IsoCorrectoRGUI, please __refer to the vignette (help file) of the IsoCorrectoR base package__. __To see the vignette, click "Help" and then "How to use IsoCorrectoR" in the GUI__. Alternatively, you can start an R session (e.g. by starting RStudio) and type __browseVignettes('IsoCorrectoR')__ into the R console after you installed IsoCorrectoRGUI.

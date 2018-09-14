@@ -1,0 +1,23 @@
+Package: IsoCorrectoRGUI
+Title: Graphical User Interface for IsoCorrectoR 
+Version: 0.99.0
+Authors@R: c(person("Christian","Kohler",email="christian.kohler@ur.de",role=c("cre","aut")),
+  person("Paul","Heinrich",email="paul.heinrich@ur.de",role=c("aut")))
+Imports:
+    IsoCorrectoR,
+    tcltk2,
+    tcltk,
+    utils
+Description: IsoCorrectoRGUI is a Graphical User Interface for the IsoCorrectoR package.
+Author: Christian Kohler, Paul Heinrich
+Maintainer: Christian Kohler <christian.kohler@ur.de>
+Depends: R (>= 3.5)
+URL: https://genomics.ur.de/software/IsoCorrectoRGUI
+License: GPL-3
+LazyData: TRUE
+NeedsCompilation: no
+biocViews: Software, FunctionalGenomics, MassSpectrometry, GUI
+RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
