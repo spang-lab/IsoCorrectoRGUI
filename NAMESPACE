@@ -3,6 +3,7 @@
 export(GetGUIstatus)
 export(IsoCorrectionGUI)
 import(IsoCorrectoR)
+import(readxl)
 import(tcltk)
 importFrom(tcltk2,tk2frame)
 importFrom(tcltk2,tk2tip)

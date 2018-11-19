@@ -2,6 +2,7 @@
 #'
 #' @import IsoCorrectoR
 #' @import tcltk
+#' @import readxl
 #' @importFrom tcltk2 tk2tip
 #' @importFrom tcltk2 tk2frame
 #' @importFrom utils browseURL
