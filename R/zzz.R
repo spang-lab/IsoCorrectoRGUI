@@ -12,7 +12,7 @@
 
   citation <- paste0(
     "If you use ", pkgname, " in published research, please cite:\n\n", "Paul Heinrich, Christian Kohler et al.\n", "Correction for natural isotope abundance and tracer impurity in MS-, MS/MS- and high-resolution multiple-tracer-data from stable isotope labeling experiments using IsoCorrectoR",
-    " (manuscript under review)\n\n"
+    " (Manuscript accepted)\n\n"
   )
 
   packageStartupMessage(paste0(msg, disclaimer, citation))

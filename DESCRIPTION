@@ -1,23 +1,24 @@
 Package: IsoCorrectoRGUI
 Title: Graphical User Interface for IsoCorrectoR 
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(person("Christian","Kohler",email="christian.kohler@ur.de",role=c("cre","aut")),
   person("Paul","Heinrich",email="paul.heinrich@ur.de",role=c("aut")))
 Imports:
     IsoCorrectoR,
+    readxl,
     tcltk2,
     tcltk,
     utils
-Description: IsoCorrectoRGUI is a Graphical User Interface for the IsoCorrectoR package.
-Author: Christian Kohler, Paul Heinrich
-Maintainer: Christian Kohler <christian.kohler@ur.de>
+Description: IsoCorrectoRGUI is a Graphical User Interface for the IsoCorrectoR package. IsoCorrectoR performs the correction of mass spectrometry data from stable isotope labeling/tracing metabolomics experiments with regard to natural isotope abundance and tracer impurity. Data from both MS and MS/MS measurements can be corrected (with any tracer isotope: 13C, 15N, 18O...), as well as high resolution MS data from multiple-tracer experiments (e.g. 13C and 15N used simultaneously).
 Depends: R (>= 3.5)
-URL: https://genomics.ur.de/software/IsoCorrectoRGUI
+URL: https://genomics.ur.de/files/IsoCorrectoRGUI
 License: GPL-3
 LazyData: TRUE
 NeedsCompilation: no
-biocViews: Software, FunctionalGenomics, MassSpectrometry, GUI
-RoxygenNote: 6.0.1
-Suggests: knitr,
-    rmarkdown
+biocViews: Software, Metabolomics, MassSpectrometry, Preprocessing, GUI
+RoxygenNote: 6.1.0
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr

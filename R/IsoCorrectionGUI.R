@@ -22,7 +22,7 @@ IsoCorrectionGUI <- function() {
 
 initGUI <- function(advancedOptions = FALSE, filenameStartvalue = "", elementfileStartvalue = "", moleculefileStartvalue = "", DirOutStartvalue = "", FileOutStartvalue = "result",
                     UHRStartvalue = FALSE, CorrectTracerImpurityStartvalue = FALSE, CorrectTracerElementCoreStartvalue = TRUE, CalculateMeanEnrichmentStartvalue = TRUE, Calculation_thresholdStartvalue = 1e-08,
-                    CalcThreshUHRStartvalue = 8, CalculateMonoisotopicProbStartvalue = FALSE, FileFormatStartvalue = "csv") {
+                    CalcThreshUHRStartvalue = 8, CalculateMonoisotopicProbStartvalue = FALSE, FileFormatStartvalue = "csv", testmode=NA) {
 
   # Set this base environment variable as a flag to determine if execution should continue or be aborted in the case of directly starting from a batch file
 
@@ -285,6 +285,75 @@ initGUI <- function(advancedOptions = FALSE, filenameStartvalue = "", elementfil
   tcltk::tkgrid(Correct.button, column = 2)
 
   tcltk::tkfocus(win)
+  
+  if(!is.na(testmode)) {
+    
+    #Imitate functions that assign parameters upon user input in the GUI
+    
+    if(testmode == "modified_input" || (testmode == "modified_input_advanced_options" && !advancedOptions)) {
+      
+      filename.global <- tcltk::tclVar("MeasurementFileTest.csv")
+      
+      moleculefile.global <- tcltk::tclVar("MoleculeFileTest.csv")
+      
+      elementfile.global <- tcltk::tclVar("ElementFileTest.csv")
+      
+      DirOut.global <- tcltk::tclVar("DirOutTest")
+      
+      FileOut.global <- tcltk::tclVar("resultTest")
+      
+      FileFormatValue <- tcltk::tclVar("xls")
+      
+      UltraHighResvalue <- tcltk::tclVar(as.character(as.integer(TRUE)))
+      
+      CorrectTracerImpurityvalue <- tcltk::tclVar(as.character(as.integer(TRUE)))
+      
+      CorrectTracerElementCorevalue <- tcltk::tclVar(as.character(as.integer(FALSE)))
+      
+      CalculateMeanEnrichmentvalue <- tcltk::tclVar(as.character(as.integer(FALSE)))
+      
+      CalcMonoisotopicProbabilitiesvalue <- tcltk::tclVar(as.character(as.integer(TRUE)))
+      
+      Calculation_thresholdvalue <- tcltk::tclVar(as.character(10^(-6)))
+      
+      CalcThreshUHRvalue <- tcltk::tclVar(as.character(6))
+      
+    }
+    
+    if((testmode == "default_input_advanced_options" || testmode == "modified_input_advanced_options") && !advancedOptions) {
+      
+      correctionValues <- AdvancedOptions(
+        win = win, advancedOptions = !advancedOptions, filenameStartvalue = tclvalue(filename.global), elementfileStartvalue = tclvalue(elementfile.global), moleculefileStartvalue = tclvalue(moleculefile.global),
+        DirOutStartvalue = tclvalue(DirOut.global), FileOutStartvalue = tclvalue(FileOut.global), UHRStartvalue = as.logical(as.integer(tclvalue(UltraHighResvalue))),
+        CorrectTracerImpurityStartvalue = as.logical(as.integer(tclvalue(CorrectTracerImpurityvalue))), CorrectTracerElementCoreStartvalue = as.logical(as.integer(tclvalue(CorrectTracerElementCorevalue))),
+        CalculateMeanEnrichmentStartvalue = as.logical(as.integer(tclvalue(CalculateMeanEnrichmentvalue))), Calculation_thresholdStartvalue = as.double(tclvalue(Calculation_thresholdvalue)),
+        CalcThreshUHRStartvalue = as.double(tclvalue(CalcThreshUHRvalue)), CalculateMonoisotopicProbStartvalue = as.logical(as.integer(tclvalue(CalcMonoisotopicProbabilitiesvalue))),
+        FileFormatStartvalue = tclvalue(FileFormatValue), testmode = testmode
+      )
+      
+    } else {
+    
+      correctionValues <- correction(
+        win = win, filename = filename.global, elementfile = elementfile.global,
+        moleculefile = moleculefile.global, FileOut = FileOut.global,
+        UltraHighResvalue = UltraHighResvalue,
+        CorrectTracerImpurityvalue = CorrectTracerImpurityvalue,
+        CorrectTracerElementCorevalue = CorrectTracerElementCorevalue,
+        CalculateMeanEnrichmentvalue = CalculateMeanEnrichmentvalue,
+        Calculation_thresholdvalue = Calculation_thresholdvalue,
+        CalcThreshUHRvalue = CalcThreshUHRvalue,
+        CalcMonoisotopicProbabilitiesvalue = CalcMonoisotopicProbabilitiesvalue,
+        DirOut = DirOut.global,
+        FileFormatValue = FileFormatValue,
+        fontset = fontset,
+        testmode = testmode
+      )
+      
+    }
+    
+    return(correctionValues)
+    
+  }
 }
 
 # SUBFUNCTIONS OF initGUI()
@@ -296,7 +365,7 @@ correction <- function(win, filename, elementfile, moleculefile, FileOut,
                        CorrectTracerElementCorevalue, CalculateMeanEnrichmentvalue,
                        Calculation_thresholdvalue, CalcThreshUHRvalue,
                        CalcMonoisotopicProbabilitiesvalue, DirOut,
-                       FileFormatValue, fontset) {
+                       FileFormatValue, fontset, testmode=NA) {
 
   # Function for creating the error-pop-up-windows
   errorwindow <- function(text, fontset) {
@@ -328,70 +397,106 @@ correction <- function(win, filename, elementfile, moleculefile, FileOut,
   CalcMonoisotopicProbabilitiesVal <- as.logical(as.integer(tcltk::tclvalue(CalcMonoisotopicProbabilitiesvalue)))
   DirOutVal <- tcltk::tclvalue(DirOut)
   FileFormatVal <- tcltk::tclvalue(FileFormatValue)
+  
+  if(is.na(testmode)) {
 
-  # Intercept input errors
-
-  errorConditionNames <- c(
-    "filenameValGiven", "elementfileValGiven", "moleculefileValGiven",
-    "DirOutValGiven", "FileOutValGiven", "filenameValFileExists",
-    "elementfileValFileExists", "moleculefileValFileExists",
-    "DirOutValDirExists", "Calculation_thresholdVal", "CalcThreshUHRVal"
-  )
-
-  errorConditions <- vector(mode = "logical", length = length(errorConditionNames))
-
-  names(errorConditions) <- errorConditionNames
-
-  errorConditions["filenameValGiven"] <- filenameVal != ""
-  errorConditions["elementfileValGiven"] <- elementfileVal != ""
-  errorConditions["moleculefileValGiven"] <- moleculefileVal != ""
-  errorConditions["DirOutValGiven"] <- DirOutVal != ""
-  errorConditions["FileOutValGiven"] <- FileOutVal != ""
-
-  errorConditions["filenameValFileExists"] <- file.exists(filenameVal)
-  errorConditions["elementfileValFileExists"] <- file.exists(elementfileVal)
-  errorConditions["moleculefileValFileExists"] <- file.exists(moleculefileVal)
-  errorConditions["DirOutValDirExists"] <- dir.exists(DirOutVal)
-
-  errorConditions["Calculation_thresholdVal"] <- !is.na(Calculation_thresholdVal)
-  errorConditions["CalcThreshUHRVal"] <- !is.na(CalcThreshUHRVal)
-
-  errorMessages <- vector(mode = "character", length = length(errorConditions))
-
-  names(errorMessages) <- names(errorConditions)
-
-  errorMessages["filenameValGiven"] <- "Please choose measurement file"
-  errorMessages["elementfileValGiven"] <- "Please choose element file"
-  errorMessages["moleculefileValGiven"] <- "Please choose molecule file"
-  errorMessages["DirOutValGiven"] <- "Please choose output directory"
-  errorMessages["FileOutValGiven"] <- "Please enter name of the output file"
-
-  errorMessages["filenameValFileExists"] <- "Measurement File does not exist"
-  errorMessages["elementfileValFileExists"] <- "Element File does not exist"
-  errorMessages["moleculefileValFileExists"] <- "Molecule File does not exist"
-  errorMessages["DirOutValDirExists"] <- "Output directory does not exist"
-
-  errorMessages["Calculation_thresholdVal"] <- "Please enter numeric value for Calculation threshold"
-  errorMessages["CalcThreshUHRVal"] <- "Please enter numeric value for Calculation threshold UHR"
-
-  errorFlag <- FALSE
-
-  for (errorCondition in names(errorConditions)) {
-    if (errorFlag == FALSE && errorConditions[errorCondition] == FALSE) {
-      errorwindow(text = errorMessages[errorCondition], fontset = fontset)
-      errorFlag <- TRUE
-    }
-  }
-
-  if (errorFlag == FALSE) {
-    print("Correction")
-    tcltk::tkdestroy(win)
-    results <- IsoCorrectoR::IsoCorrection(
-      MeasurementFile = filenameVal, ElementFile = elementfileVal, FileOutFormat = FileFormatVal, MoleculeFile = moleculefileVal, UltraHighRes = UltraHighResVal, CorrectTracerImpurity = CorrectTracerImpurityVal, CorrectTracerElementCore = CorrectTracerElementCoreVal, CalculateMeanEnrichment = CalculateMeanEnrichmentVal, CorrectAlsoMonoisotopic = CalcMonoisotopicProbabilitiesVal, DirOut = DirOutVal,
-      CalculationThreshold = Calculation_thresholdVal, CalculationThreshold_UHR = CalcThreshUHRVal, FileOut = FileOutVal
+    # Intercept input errors
+  
+    errorConditionNames <- c(
+      "filenameValGiven", "elementfileValGiven", "moleculefileValGiven",
+      "DirOutValGiven", "FileOutValGiven", "filenameValFileExists",
+      "elementfileValFileExists", "moleculefileValFileExists",
+      "DirOutValDirExists", "Calculation_thresholdVal", "CalcThreshUHRVal"
     )
-
-    finish(results = results, fontset = fontset)
+  
+    errorConditions <- vector(mode = "logical", length = length(errorConditionNames))
+  
+    names(errorConditions) <- errorConditionNames
+  
+    errorConditions["filenameValGiven"] <- filenameVal != ""
+    errorConditions["elementfileValGiven"] <- elementfileVal != ""
+    errorConditions["moleculefileValGiven"] <- moleculefileVal != ""
+    errorConditions["DirOutValGiven"] <- DirOutVal != ""
+    errorConditions["FileOutValGiven"] <- FileOutVal != ""
+  
+    errorConditions["filenameValFileExists"] <- file.exists(filenameVal)
+    errorConditions["elementfileValFileExists"] <- file.exists(elementfileVal)
+    errorConditions["moleculefileValFileExists"] <- file.exists(moleculefileVal)
+    errorConditions["DirOutValDirExists"] <- dir.exists(DirOutVal)
+  
+    errorConditions["Calculation_thresholdVal"] <- !is.na(Calculation_thresholdVal)
+    errorConditions["CalcThreshUHRVal"] <- !is.na(CalcThreshUHRVal)
+  
+    errorMessages <- vector(mode = "character", length = length(errorConditions))
+  
+    names(errorMessages) <- names(errorConditions)
+  
+    errorMessages["filenameValGiven"] <- "Please choose measurement file"
+    errorMessages["elementfileValGiven"] <- "Please choose element file"
+    errorMessages["moleculefileValGiven"] <- "Please choose molecule file"
+    errorMessages["DirOutValGiven"] <- "Please choose output directory"
+    errorMessages["FileOutValGiven"] <- "Please enter name of the output file"
+  
+    errorMessages["filenameValFileExists"] <- "Measurement File does not exist"
+    errorMessages["elementfileValFileExists"] <- "Element File does not exist"
+    errorMessages["moleculefileValFileExists"] <- "Molecule File does not exist"
+    errorMessages["DirOutValDirExists"] <- "Output directory does not exist"
+  
+    errorMessages["Calculation_thresholdVal"] <- "Please enter numeric value for Calculation threshold"
+    errorMessages["CalcThreshUHRVal"] <- "Please enter numeric value for Calculation threshold UHR"
+  
+    errorFlag <- FALSE
+  
+    for (errorCondition in names(errorConditions)) {
+      if (errorFlag == FALSE && errorConditions[errorCondition] == FALSE) {
+        errorwindow(text = errorMessages[errorCondition], fontset = fontset)
+        errorFlag <- TRUE
+      }
+    }
+  
+    if (errorFlag == FALSE) {
+      print("Correction")
+      tcltk::tkdestroy(win)
+      results <- IsoCorrectoR::IsoCorrection(
+        MeasurementFile = filenameVal, ElementFile = elementfileVal, FileOutFormat = FileFormatVal, MoleculeFile = moleculefileVal,
+        UltraHighRes = UltraHighResVal, CorrectTracerImpurity = CorrectTracerImpurityVal, CorrectTracerElementCore = CorrectTracerElementCoreVal,
+        CalculateMeanEnrichment = CalculateMeanEnrichmentVal, CorrectAlsoMonoisotopic = CalcMonoisotopicProbabilitiesVal, DirOut = DirOutVal,
+        CalculationThreshold = Calculation_thresholdVal, CalculationThreshold_UHR = CalcThreshUHRVal, FileOut = FileOutVal, ReturnResultsObject = FALSE
+      )
+  
+      finish(results = results, fontset = fontset)
+    }
+    
+  } else {
+    
+    correctionValues <- list()
+    
+    #Files and directories
+    
+    correctionValues["MeasurementFile"] <- filenameVal
+    correctionValues["ElementFile"] <- elementfileVal
+    correctionValues["MoleculeFile"] <- moleculefileVal
+    correctionValues["DirOut"] <- DirOutVal
+    correctionValues["FileOut"] <- FileOutVal
+    correctionValues["FileOutFormat"] <- FileFormatVal
+    
+    #Logical values
+    
+    correctionValues["UltraHighRes"] <- UltraHighResVal
+    correctionValues["CorrectTracerImpurity"] <- CorrectTracerImpurityVal
+    correctionValues["CorrectTracerElementCore"] <- CorrectTracerElementCoreVal
+    correctionValues["CalculateMeanEnrichment"] <- CalculateMeanEnrichmentVal
+    correctionValues["CorrectAlsoMonoisotopic"] <- CalcMonoisotopicProbabilitiesVal
+    
+    #Numeric values
+    
+    correctionValues["CalculationThreshold"] <- Calculation_thresholdVal
+    correctionValues["CalculationThreshold_UHR"] <- CalcThreshUHRVal
+    
+    tcltk::tkdestroy(win)
+    
+    return(correctionValues)
+    
   }
 }
 
@@ -459,9 +564,11 @@ AdvancedOptions <- function(win, advancedOptions, filenameStartvalue, elementfil
                             CorrectTracerImpurityStartvalue, CorrectTracerElementCoreStartvalue,
                             CalculateMeanEnrichmentStartvalue, Calculation_thresholdStartvalue,
                             CalcThreshUHRStartvalue, CalculateMonoisotopicProbStartvalue,
-                            FileFormatStartvalue) {
+                            FileFormatStartvalue, testmode = NA) {
+  
   tcltk::tkdestroy(win)
-  initGUI(
+    
+  correctionValues <- initGUI(
     advancedOptions = advancedOptions, filenameStartvalue = filenameStartvalue,
     elementfileStartvalue = elementfileStartvalue,
     moleculefileStartvalue = moleculefileStartvalue,
@@ -474,8 +581,15 @@ AdvancedOptions <- function(win, advancedOptions, filenameStartvalue, elementfil
     Calculation_thresholdStartvalue = Calculation_thresholdStartvalue,
     CalcThreshUHRStartvalue = CalcThreshUHRStartvalue,
     CalculateMonoisotopicProbStartvalue = CalculateMonoisotopicProbStartvalue,
-    FileFormatStartvalue = FileFormatStartvalue
+    FileFormatStartvalue = FileFormatStartvalue, testmode = testmode
   )
+  
+  if(!is.na(testmode)) {
+    
+    return(correctionValues)
+    
+  }
+  
 }
 
 # Function to open general help html-file
