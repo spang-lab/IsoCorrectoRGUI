@@ -19,6 +19,8 @@ IsoCorrectionGUI <- function() {
   initGUI()
 }
 
+baseEnvRef<-new.env()
+
 # Main function of IsoCorrectoR GUI
 
 initGUI <- function(advancedOptions = FALSE, filenameStartvalue = "", elementfileStartvalue = "", moleculefileStartvalue = "", DirOutStartvalue = "", FileOutStartvalue = "result",
@@ -27,7 +29,7 @@ initGUI <- function(advancedOptions = FALSE, filenameStartvalue = "", elementfil
 
   # Set this base environment variable as a flag to determine if execution should continue or be aborted in the case of directly starting from a batch file
 
-  baseEnvRef <- baseenv()
+  #baseEnvRef <- baseenv()
   baseEnvRef$continueIsoCorrection <- TRUE
 
   # Define internal functions (must be defined within initGUI() to work)
@@ -36,7 +38,7 @@ initGUI <- function(advancedOptions = FALSE, filenameStartvalue = "", elementfil
 
   windestroy <- function() {
     tcltk::tkdestroy(win)
-    baseEnvRef <- baseenv()
+    #baseEnvRef <- baseenv()
     baseEnvRef$continueIsoCorrection <- FALSE
   }
 
@@ -510,7 +512,7 @@ finish <- function(results, fontset) {
 
   contdestroy <- function() {
     tcltk::tkdestroy(continuewindow)
-    baseEnvRef <- baseenv()
+    #baseEnvRef <- baseenv()
     baseEnvRef$continueIsoCorrection <- FALSE
   }
 
